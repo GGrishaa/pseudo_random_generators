@@ -1,3 +1,10 @@
+/**
+ * @file generators.cpp
+ * @brief Реализация трёх генераторов псевдослучайных чисел
+ *
+ * Содержит определения функций, объявленных в generators.hpp
+ */
+
 #include "generators.hpp"
 
 uint32_t lcg_state;

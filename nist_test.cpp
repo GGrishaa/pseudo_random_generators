@@ -1,12 +1,40 @@
+/**
+ * @file nist_test.cpp
+ * @brief Реализация пяти статистических тестов NIST SP800-22
+ *
+ * Программа читает битовые последовательности из файлов `bin_data.txt`,
+ * сгенерированных на основе выборок, и применяет к ним следующие тесты:
+ * - Frequency (Monobit)
+ * - Frequency within a Block (M = 20)
+ * - Runs
+ * - Longest Run of Ones in a Block (M = 128)
+ * - Serial (m = 3)
+ *
+ * Результаты (P‑values) сохраняются в `nist.txt` в каждой папке генератора
+ */
+
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
+/** @def ALPHA
+ *  @brief Уровень значимости для принятия/отклонения нулевой гипотезы
+ */
 #define ALPHA 0.01
 
 using namespace std;
 
+/**
+ * @brief Вычисляет неполную гамма-функцию Q(a,x) = igamc(a,x)
+ *
+ * Реализация основана на аппроксимациях из Numerical Recipes
+ * Для x < a+1 используется разложение в ряд, иначе – цепная дробь
+ *
+ * @param a Параметр формы (a > 0)
+ * @param x Верхний предел интегрирования (x >= 0)
+ * @return Значение igamc(a,x) = 1 - P(a,x)
+ */
 double igamc(double a, double x) {
   if (x < 0.0 || a <= 0.0) return 1.0;
   if (x < a + 1.0) {
@@ -36,6 +64,12 @@ double igamc(double a, double x) {
   }
 }
 
+/**
+ * @brief Преобразует строку из символов '0'/'1' в вектор bool
+ *
+ * @param s Входная строка, состоящая только из '0' и '1'
+ * @return Вектор булевых значений (true – '1', false – '0')
+ */
 vector<bool> string_to_bits(const string& s) {
   vector<bool> bits;
   bits.reserve(s.size());
@@ -43,6 +77,14 @@ vector<bool> string_to_bits(const string& s) {
   return bits;
 }
 
+/**
+ * @brief Частотный/монобитный тест NIST
+ *
+ * Проверяет, близка ли доля единиц к 1/2
+ *
+ * @param bits Последовательность битов
+ * @return P‑value
+ */
 double frequency_test(const vector<bool>& bits) {
   double sum = 0.0;
   for (bool b : bits) sum += (b ? 1.0 : -1.0);
@@ -50,6 +92,16 @@ double frequency_test(const vector<bool>& bits) {
   return erfc(s_obs / sqrt(2.0));
 }
 
+/**
+ * @brief Блочный частотный тест (M = 20)
+ *
+ * Разбивает последовательность на блоки по M бит и проверяет,
+ * что доля единиц в каждом блоке близка к 0.5
+ *
+ * @param bits Последовательность битов
+ * @param M    Размер блока (по умолчанию 20)
+ * @return P‑value
+ */
 double block_frequency_test(const vector<bool>& bits, int M = 20) {
   int n = bits.size(), N = n / M;
   if (!N) return 1.0;
@@ -65,6 +117,14 @@ double block_frequency_test(const vector<bool>& bits, int M = 20) {
   return igamc(N / 2.0, chi2 / 2.0);
 }
 
+/**
+ * @brief Тест на серии (Runs Test)
+ *
+ * Проверяет, не слишком быстро или слишком медленно чередуются ли 0 и 1
+ *
+ * @param bits Последовательность битов
+ * @return P‑value (0, если частотный тест предварительно не пройден)
+ */
 double runs_test(const vector<bool>& bits) {
   int n = bits.size();
   int ones = 0;
@@ -81,6 +141,15 @@ double runs_test(const vector<bool>& bits) {
   return erfc(fabs(z) / sqrt(2.0));
 }
 
+/**
+ * @brief Тест на самую длинную серию единиц в блоке (M = 128)
+ *
+ * Разбивает последовательность на блоки по 128 бит и сравнивает
+ * распределение максимальных длин серий единиц с теоретическим
+ *
+ * @param bits Последовательность битов
+ * @return P‑value
+ */
 double longest_run_test(const vector<bool>& bits) {
   int n = bits.size();
   const int M = 128;
@@ -121,6 +190,16 @@ double longest_run_test(const vector<bool>& bits) {
   return igamc(5.0 / 2.0, chi2 / 2.0);
 }
 
+/**
+ * @brief Серийный тест NIST (m = 3)
+ *
+ * Проверяет равномерность распределения всех возможных m-битовых шаблонов
+ * Возвращает минимальное P‑value из двух компонент теста
+ *
+ * @param bits Последовательность битов
+ * @param m    Длина шаблона (по умолчанию 3)
+ * @return P‑value
+ */
 double serial_test(const vector<bool>& bits, int m = 3) {
   int n = bits.size();
   vector<bool> ext = bits;
@@ -167,6 +246,14 @@ double serial_test(const vector<bool>& bits, int m = 3) {
   return min(P1, P2);
 }
 
+/**
+ * @brief Главная функция
+ *
+ * Для каждого генератора (1..3) читает битовые строки из `bin_data.txt`,
+ * применяет пять тестов NIST и записывает P‑values в `nist.txt`
+ *
+ * @return 0 при успешном завершении, 1 при ошибке открытия файлов
+ */
 int main() {
   const int samples = 20;
   for (int gen = 1; gen <= 3; ++gen) {
