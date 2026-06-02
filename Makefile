@@ -61,6 +61,7 @@ clean:
 	rm -f generation chi2 to_bin nist_test timer *.o
 	rm -f generated_data/1/*.txt generated_data/2/*.txt generated_data/3/*.txt
 	rm -f time/1/*.txt time/2/*.txt time/3/*.txt time/4/*.txt time/*.png
+	rm -rf docs/*
 	clear
 
 rebuild: clean all
