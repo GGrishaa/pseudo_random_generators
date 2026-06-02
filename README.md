@@ -11,18 +11,18 @@
 ---
 
 ## Структура проекта
-── generators.hpp # Заголовки трёх генераторов
-├── generators.cpp # Реализация генераторов
-├── generation.cpp # Генерация выборок (data.txt, stats.txt)
-├── chi2.cpp # Критерий хи-квадрат (chi2.txt)
-├── to_bin.cpp # Преобразование в битовые строки (bin_data.txt)
-├── nist_test.cpp # Пять тестов NIST (nist.txt)
-├── timer.cpp # Замер времени генерации (time/*/time.txt)
-├── plot.py # Построение графика времени генерации
-├── Makefile # Управление сборкой и запуском
-├── doxygen_config # Конфигурация для Doxygen
-├── generated_data/ # Результаты генерации и тестов (1/,2/,3/)
-└── time/ # Результаты замеров времени (1/,2/,3/,4/)
+- generators.hpp # Заголовки трёх генераторов
+- generators.cpp # Реализация генераторов
+- generation.cpp # Генерация выборок (data.txt, stats.txt)
+- chi2.cpp # Критерий хи-квадрат (chi2.txt)
+- to_bin.cpp # Преобразование в битовые строки (bin_data.txt)
+- nist_test.cpp # Пять тестов NIST (nist.txt)
+- timer.cpp # Замер времени генерации (time/*/time.txt)
+- plot.py # Построение графика времени генерации
+- Makefile # Управление сборкой и запуском
+- doxygen_config # Конфигурация для Doxygen
+- generated_data/ # Результаты генерации и тестов (1/,2/,3/)
+- time/ # Результаты замеров времени (1/,2/,3/,4/)
 
 
 ---
