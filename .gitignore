@@ -4,3 +4,5 @@ generation
 nist_test
 timer
 to_bin
+*.pdf
+*.docx
